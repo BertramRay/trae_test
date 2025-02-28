@@ -307,6 +307,21 @@ function gameOver() {
     document.getElementById('finalScore').textContent = `游戏结束原因：${gameEndReason}\n最终分数 - 玩家: ${score} | AI: ${aiScore}`;
 }
 
+// 开始游戏
+function startGame() {
+    document.getElementById('menuContainer').style.display = 'none';
+    document.getElementById('gameContainer').style.display = 'flex';
+    restartGame();
+}
+
+// 返回菜单
+function backToMenu() {
+    document.getElementById('menuContainer').style.display = 'flex';
+    document.getElementById('gameContainer').style.display = 'none';
+    document.getElementById('gameOver').style.display = 'none';
+    if (gameLoop) clearInterval(gameLoop);
+}
+
 // 重新开始游戏
 function restartGame() {
     initGame();
@@ -331,6 +346,3 @@ document.addEventListener('keydown', (event) => {
             break;
     }
 });
-
-// 开始游戏
-restartGame();

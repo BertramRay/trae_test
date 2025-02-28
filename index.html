@@ -3,61 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贪吃蛇游戏</title>
+    <title>贪吃蛇对战</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #FF4081;
+            --background-color: #1a1a1a;
+            --text-color: #ffffff;
+        }
+
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
         }
+
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            text-align: center;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            font-size: 48px;
+            font-weight: 600;
+            margin: 0;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-description {
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0;
+        }
+
         #gameCanvas {
-            border: 2px solid #333;
-            background-color: #fff;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
-        #score {
+
+        .score-board {
+            display: flex;
+            gap: 30px;
             font-size: 24px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            border-radius: 15px;
         }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-value {
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .player-score { color: var(--primary-color); }
+        .ai-score { color: var(--secondary-color); }
+
         #gameOver {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
             text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.3s ease-out;
         }
+
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 15px 30px;
+            font-size: 18px;
             cursor: pointer;
-            background-color: #4CAF50;
+            background: linear-gradient(45deg, var(--primary-color), #45a049);
             color: white;
             border: none;
-            border-radius: 5px;
-            margin-top: 10px;
+            border-radius: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Poppins', sans-serif;
         }
+
         button:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @media (max-width: 600px) {
+            .game-title { font-size: 36px; }
+            .game-description { font-size: 16px; }
+            .score-board { font-size: 18px; }
+            #gameCanvas { width: 90vw; height: 90vw; }
         }
     </style>
 </head>
 <body>
-    <div id="score">玩家分数: <span id="scoreValue">0</span> | AI分数: <span id="aiScoreValue">0</span></div>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="menu-container" id="menuContainer">
+        <h1 class="game-title">贪吃蛇对战</h1>
+        <p class="game-description">
+            欢迎来到贪吃蛇对战游戏！在这里，你将与AI进行一场紧张刺激的对决。
+            使用方向键控制你的蛇，收集食物增加分数，但要小心不要撞到墙壁、自己或AI蛇。
+            准备好开始这场挑战了吗？
+        </p>
+        <button onclick="startGame()">开始游戏</button>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="score-board">
+            <div class="score-item player-score">
+                <span>玩家分数:</span>
+                <span id="scoreValue" class="score-value">0</span>
+            </div>
+            <div class="score-item ai-score">
+                <span>AI分数:</span>
+                <span id="aiScoreValue" class="score-value">0</span>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+
     <div id="gameOver">
         <h2>游戏结束!</h2>
-        <p>最终分数: <span id="finalScore">0</span></p>
-        <button onclick="restartGame()">重新开始</button>
+        <p id="finalScore"></p>
+        <button onclick="restartGame()">再来一局</button>
+        <button onclick="backToMenu()" style="background: linear-gradient(45deg, #666, #999); margin-left: 10px;">返回菜单</button>
     </div>
+
     <script src="game.js"></script>
 </body>
 </html>
